@@ -1,7 +1,7 @@
 import pygame as pg
 import math
 
-CAR_MAX_TURN_RATE = 1000
+CAR_MAX_TURN_RATE = 1500
 CAR_MAX_VELOCITY = 2.5
 
 class Car(pg.sprite.Sprite):
@@ -32,23 +32,38 @@ class Car(pg.sprite.Sprite):
 		velocity = self.__find_velocity()
 		dist = (pg.mouse.get_pos() - self.pos).length()
 
-		if dist > 10:
+		if dist > 15:
 			old_pos = self.pos
 			self.pos += self.forward * velocity
 			self.rect.center = self.pos
-			collided = pg.sprite.spritecollideany(self, walls)
 
-			# # TODO: finish collision detection
-			# if collided is not None:
-			# 	self.rect.center = self.pos = old_pos
-			# 	if
+			#check collision
+			if pg.sprite.spritecollideany(self, walls) is not None:
+				self.pos = old_pos
+				self.rect.center = self.pos
+
+				# add Only X component
+				self.pos[0] += (self.forward * velocity)[0]
+				self.rect.center = self.pos
+				#re-check collision
+				if pg.sprite.spritecollideany(self, walls) is not None:
+					self.pos[0] -= 2 * (self.forward * velocity)[0]
+					self.rect.center = self.pos
+
+				# add Only Y component
+				self.pos[1] += (self.forward * velocity)[1]
+				self.rect.center = self.pos
+				#re-check collision
+				if pg.sprite.spritecollideany(self, walls) is not None:
+					self.pos[1] -= 2 * (self.forward * velocity)[1]
+					self.rect.center = self.pos
 
 		#--------Update Rotation--------
 		target_rot = math.atan2(mouse_x - self.pos[0], mouse_y - self.pos[1]) * (180 // math.pi)
 		rot_dist = ((target_rot - self.rot) + 180) % 360 - 180
 		rot_dist = max(min(rot_dist, CAR_MAX_TURN_RATE), -CAR_MAX_TURN_RATE)
 
-		if dist > 10:
+		if dist > 15:
 			self.rot += (rot_dist / 35)
 			self.rot = self.rot % 360
 
@@ -72,7 +87,6 @@ class Car(pg.sprite.Sprite):
 		b = self.pos[1] - (m * self.pos[0])
 
 		sign = True if  (self.right + self.pos)[0] < self.pos[0] else False # determine if upside-down
-		# print(f"{sign} | {(mouse_pos - self.pos)}")
 		if (mouse_pos[1] + 20 > (m * mouse_pos[0] + b)):
 			if sign:
 				velocity *= -1
