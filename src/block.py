@@ -1,5 +1,6 @@
 import pygame as pg
 
+
 class Block(pg.sprite.Sprite):
 
 	def __init__(self, pos, width = 50, height = 50):
