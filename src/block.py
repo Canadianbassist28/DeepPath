@@ -15,7 +15,5 @@ class Block(pg.sprite.Sprite):
 		self.rect = self.img.get_rect()
 		self.rect.center = self.pos
 
-	def update(self, screen):
-		img_copy = self.img.copy()
-
-		screen.blit(img_copy, self.rect)
+	def update(self):
+		pass
