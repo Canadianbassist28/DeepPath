@@ -17,11 +17,10 @@ class Camera(object):
 	def update(self, target, events):
 		self.screen.fill((0,0,0))
 
-		for wall in self.walls.sprites():
-			wall.update()
-			self.screen.blit(wall.img, wall.rect)
-
+		self.walls.update(self)
 		self.player.update(self.walls, target, events, self)
 
 	def scroll(self, offset):
+		offset = Vector2(offset)
+		print(offset)
 		self.offset += offset

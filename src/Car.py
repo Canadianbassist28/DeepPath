@@ -38,7 +38,7 @@ class Car(pg.sprite.Sprite):
 
 			#check collision
 			if pg.sprite.spritecollideany(self, walls) is not None:
-				self.pos = old_pos
+				self.pos -= self.forward * velocity
 				self.rect.center = self.pos
 
 				# add Only X component
@@ -46,7 +46,7 @@ class Car(pg.sprite.Sprite):
 				self.rect.center = self.pos
 				#re-check collision
 				if pg.sprite.spritecollideany(self, walls) is not None:
-					self.pos[0] -= 2 * (self.forward * velocity)[0]
+					self.pos[0] -= (self.forward * velocity)[0]
 					self.rect.center = self.pos
 
 				# add Only Y component
@@ -54,7 +54,7 @@ class Car(pg.sprite.Sprite):
 				self.rect.center = self.pos
 				#re-check collision
 				if pg.sprite.spritecollideany(self, walls) is not None:
-					self.pos[1] -= 2 * (self.forward * velocity)[1]
+					self.pos[1] -= (self.forward * velocity)[1]
 					self.rect.center = self.pos
 
 		#--------Update Rotation--------
@@ -67,18 +67,20 @@ class Car(pg.sprite.Sprite):
 			if velocity > 0:
 				self.rot += (rot_dist / 35)
 			else: # reverse rotation when moving backwards
-				self.rot -= (rot_dist / 35)
+				self.rot += -1 * (rot_dist / 35)
 			self.rot = self.rot % 360
 
 		img_copy = pg.transform.rotate(img_copy, self.rot)
 		self.rect = img_copy.get_rect()
 		self.rect.center = self.pos
 
+		new_pos = self.pos
+
 		# Draw Car
-		camera.scroll(self.pos - old_pos)
+		camera.scroll(new_pos - old_pos)
 		camera.screen.blit(img_copy, self.rect.topleft + camera.offset)
-		pg.draw.line(camera.screen, (255,0,0),self.pos, (self.forward * 25 + self.pos))
-		pg.draw.line(camera.screen, (0,0,255),self.pos, (self.right * 25 + self.pos))
+		pg.draw.line(camera.screen, (255,0,0),self.pos + camera.offset, (self.forward * 25 + self.pos) + camera.offset)
+		pg.draw.line(camera.screen, (0,0,255),self.pos + camera.offset, (self.right * 25 + self.pos) + camera.offset)
 
 	def __find_velocity(self, target):
 		heading = target - self.pos
