@@ -14,6 +14,7 @@ class Block(pg.sprite.Sprite):
 
 		self.rect = self.img.get_rect()
 		self.rect.center = self.pos
+		self.mask = pg.mask.from_surface(self.img.copy())
 
 	def update(self, camera):
 		img_copy = self.img.copy()

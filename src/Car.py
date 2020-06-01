@@ -11,7 +11,7 @@ class Car(pg.sprite.Sprite):
 		self.width = 50
 		self.height = 50
 		self.pos = pg.math.Vector2(pos)
-		self.rot = 0
+		self.rot = 180
 		self.forward = pg.math.Vector2(math.cos(math.radians(self.rot)), math.sin(math.radians(self.rot)))
 		self.right = self.forward.rotate(90)
 
@@ -20,11 +20,14 @@ class Car(pg.sprite.Sprite):
 
 		self.rect = self.img.get_rect()
 		self.rect.center = self.pos
+		self.mask = pg.mask.from_surface(self.img.copy())
+
 
 	def update(self, walls, target, events, camera):
 		img_copy = self.img.copy()
 		target_x, target_y  = target
-		self.forward = pg.math.Vector2(math.sin(math.radians(self.rot)), math.cos(math.radians(self.rot)))
+		self.forward = pg.math.Vector2(math.sin(math.radians(self.rot)),
+									   math.cos(math.radians(self.rot)))
 		self.right = self.forward.rotate(90)
 
 		#--------Update speed--------
@@ -37,7 +40,7 @@ class Car(pg.sprite.Sprite):
 			self.rect.center = self.pos
 
 			#check collision
-			if pg.sprite.spritecollideany(self, walls) is not None:
+			if pg.sprite.spritecollideany(self, walls, pg.sprite.collide_mask) is not None:
 				self.pos -= self.forward * velocity
 				self.rect.center = self.pos
 
@@ -45,7 +48,7 @@ class Car(pg.sprite.Sprite):
 				self.pos[0] += (self.forward * velocity)[0]
 				self.rect.center = self.pos
 				#re-check collision
-				if pg.sprite.spritecollideany(self, walls) is not None:
+				if pg.sprite.spritecollideany(self, walls, pg.sprite.collide_mask) is not None:
 					self.pos[0] -= (self.forward * velocity)[0]
 					self.rect.center = self.pos
 
@@ -53,21 +56,23 @@ class Car(pg.sprite.Sprite):
 				self.pos[1] += (self.forward * velocity)[1]
 				self.rect.center = self.pos
 				#re-check collision
-				if pg.sprite.spritecollideany(self, walls) is not None:
+				if pg.sprite.spritecollideany(self, walls, pg.sprite.collide_mask) is not None:
 					self.pos[1] -= (self.forward * velocity)[1]
 					self.rect.center = self.pos
 
 		#--------Update Rotation--------
 		# get angle to target
-		target_rot = math.atan2(target_x - self.pos[0], target_y - self.pos[1]) * (180 // math.pi)
+		target_rot = math.atan2(target_x - self.pos[0],
+								target_y - self.pos[1]) * (180 // math.pi)
 		rot_dist = ((target_rot - self.rot) + 180) % 360 - 180
+		print(rot_dist)
 		rot_dist = max(min(rot_dist, CAR_MAX_TURN_RATE), -CAR_MAX_TURN_RATE)
 
 		if dist > 15:
 			if velocity > 0:
 				self.rot += (rot_dist / 35)
 			else: # reverse rotation when moving backwards
-				self.rot += -1 * (rot_dist / 35)
+				self.rot += -1 * (rot_dist / 70)
 			self.rot = self.rot % 360
 
 		img_copy = pg.transform.rotate(img_copy, self.rot)
@@ -75,6 +80,7 @@ class Car(pg.sprite.Sprite):
 		self.rect.center = self.pos
 
 		new_pos = self.pos
+		self.mask = pg.mask.from_surface(img_copy)
 
 		# Draw Car
 		camera.scroll(new_pos - old_pos)
@@ -93,10 +99,10 @@ class Car(pg.sprite.Sprite):
 
 		sign = True if  (self.right + self.pos)[0] < self.pos[0] else False # determine if upside-down
 		if (target[1] + 20 > (m * target[0] + b)):
-			if sign:
-				velocity *= -1
-		else:
 			if not sign:
-				velocity *= -1
+				velocity *= -.5
+		else:
+			if sign:
+				velocity *= -.5
 
-		return -velocity
+		return velocity

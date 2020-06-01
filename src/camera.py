@@ -22,5 +22,4 @@ class Camera(object):
 
 	def scroll(self, offset):
 		offset = Vector2(offset)
-		print(offset)
 		self.offset += offset
