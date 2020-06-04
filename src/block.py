@@ -18,4 +18,4 @@ class Block(pg.sprite.Sprite):
 
 	def update(self, camera):
 		img_copy = self.img.copy()
-		camera.screen.blit(img_copy, self.rect.topleft + camera.offset)
+		camera.screen.blit(img_copy, self.rect.topleft - camera.offset)

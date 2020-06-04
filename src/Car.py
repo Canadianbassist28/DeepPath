@@ -1,4 +1,5 @@
 import pygame as pg
+from pygame.math import Vector2
 import math
 
 CAR_MAX_TURN_RATE = 1500
@@ -10,9 +11,9 @@ class Car(pg.sprite.Sprite):
 		pg.sprite.Sprite.__init__(self)
 		self.width = 50
 		self.height = 50
-		self.pos = pg.math.Vector2(pos)
+		self.pos = Vector2(pos)
 		self.rot = 180
-		self.forward = pg.math.Vector2(math.cos(math.radians(self.rot)), math.sin(math.radians(self.rot)))
+		self.forward = Vector2(math.cos(math.radians(self.rot)), math.sin(math.radians(self.rot)))
 		self.right = self.forward.rotate(90)
 
 		self.img = pg.Surface((self.width, self.height), pg.SRCALPHA)
@@ -22,19 +23,21 @@ class Car(pg.sprite.Sprite):
 		self.rect.center = self.pos
 		self.mask = pg.mask.from_surface(self.img.copy())
 
+		self.draw_debug = False
+
 
 	def update(self, walls, target, events, camera):
 		img_copy = self.img.copy()
 		target_x, target_y  = target
-		self.forward = pg.math.Vector2(math.sin(math.radians(self.rot)),
+		self.forward = Vector2(math.sin(math.radians(self.rot)),
 									   math.cos(math.radians(self.rot)))
 		self.right = self.forward.rotate(90)
 
 		#--------Update speed--------
-		velocity = self.__find_velocity(target)
-		dist = (target - self.pos).length()
+		velocity = self.__find_velocity(target, camera.offset)
+		dist = (target - (self.pos - camera.offset)).length()
 
-		old_pos = self.pos
+		old_pos = Vector2(self.rect.center)
 		if dist > 15:
 			self.pos += self.forward * velocity
 			self.rect.center = self.pos
@@ -62,10 +65,9 @@ class Car(pg.sprite.Sprite):
 
 		#--------Update Rotation--------
 		# get angle to target
-		target_rot = math.atan2(target_x - self.pos[0],
-								target_y - self.pos[1]) * (180 // math.pi)
+		target_rot = math.atan2(target_x - (self.pos[0] - camera.offset[0]),
+								target_y - (self.pos[1] - camera.offset[1])) * (180 // math.pi)
 		rot_dist = ((target_rot - self.rot) + 180) % 360 - 180
-		print(rot_dist)
 		rot_dist = max(min(rot_dist, CAR_MAX_TURN_RATE), -CAR_MAX_TURN_RATE)
 
 		if dist > 15:
@@ -78,26 +80,31 @@ class Car(pg.sprite.Sprite):
 		img_copy = pg.transform.rotate(img_copy, self.rot)
 		self.rect = img_copy.get_rect()
 		self.rect.center = self.pos
-
-		new_pos = self.pos
 		self.mask = pg.mask.from_surface(img_copy)
+
+		new_pos = Vector2(self.rect.center)
 
 		# Draw Car
 		camera.scroll(new_pos - old_pos)
-		camera.screen.blit(img_copy, self.rect.topleft + camera.offset)
-		pg.draw.line(camera.screen, (255,0,0),self.pos + camera.offset, (self.forward * 25 + self.pos) + camera.offset)
-		pg.draw.line(camera.screen, (0,0,255),self.pos + camera.offset, (self.right * 25 + self.pos) + camera.offset)
+		camera.screen.blit(img_copy, self.rect.topleft - camera.offset)
+		if self.draw_debug:
+			pg.draw.line(camera.screen, (255,0,0),self.pos - camera.offset, (self.forward * 25 + self.pos) - camera.offset)
+			pg.draw.line(camera.screen, (0,0,255),self.pos - camera.offset, (self.right * 25 + self.pos) - camera.offset)
+			pg.draw.line(camera.screen, (0,255,0),self.pos - camera.offset, (int(target[0]), int(target[1])))
+			pg.draw.circle(camera.screen, (255,0,0),(int(target[0]), int(target[1])),5)
+			pg.draw.circle(camera.screen, (255,0,0),(int(self.pos[0] - camera.offset[0]), int(self.pos[1] - camera.offset[1])),5)
 
-	def __find_velocity(self, target):
-		heading = target - self.pos
+	def __find_velocity(self, target, offset):
+		offset_pos = self.pos - offset
+		heading = target - offset_pos
 		dist = heading.length()
 		velocity = max(min(dist * .05, CAR_MAX_VELOCITY), -CAR_MAX_VELOCITY)
 
 		#-----determine forward or reverse-----
-		m = ((self.right + self.pos)[1] - self.pos[1]) / ((self.right + self.pos)[0] - self.pos[0] + .000000001)
-		b = self.pos[1] - (m * self.pos[0])
+		m = ((self.right + offset_pos)[1] - offset_pos[1]) / ((self.right + offset_pos)[0] - offset_pos[0] + .000000001)
+		b = offset_pos[1] - (m * offset_pos[0])
 
-		sign = True if  (self.right + self.pos)[0] < self.pos[0] else False # determine if upside-down
+		sign = True if  (self.right + offset_pos)[0] < offset_pos[0] else False # determine if upside-down
 		if (target[1] + 20 > (m * target[0] + b)):
 			if not sign:
 				velocity *= -.5

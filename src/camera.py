@@ -20,6 +20,7 @@ class Camera(object):
 		self.walls.update(self)
 		self.player.update(self.walls, target, events, self)
 
+
 	def scroll(self, offset):
 		offset = Vector2(offset)
 		self.offset += offset
