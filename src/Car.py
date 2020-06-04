@@ -23,6 +23,7 @@ class Car(pg.sprite.Sprite):
 		self.rect.center = self.pos
 		self.mask = pg.mask.from_surface(self.img.copy())
 
+
 		self.draw_debug = False
 
 
