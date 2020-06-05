@@ -23,7 +23,6 @@ class Car(pg.sprite.Sprite):
 		self.rect.center = self.pos
 		self.mask = pg.mask.from_surface(self.img.copy())
 
-
 		self.draw_debug = False
 
 
@@ -78,22 +77,18 @@ class Car(pg.sprite.Sprite):
 				self.rot += -1 * (rot_dist / 70)
 			self.rot = self.rot % 360
 
+		#rotate Car Image
 		img_copy = pg.transform.rotate(img_copy, self.rot)
 		self.rect = img_copy.get_rect()
 		self.rect.center = self.pos
 		self.mask = pg.mask.from_surface(img_copy)
 
-		new_pos = Vector2(self.rect.center)
-
 		# Draw Car
-		camera.scroll(new_pos - old_pos)
+		camera.scroll(Vector2(self.rect.center) - old_pos)
 		camera.screen.blit(img_copy, self.rect.topleft - camera.offset)
+
 		if self.draw_debug:
-			pg.draw.line(camera.screen, (255,0,0),self.pos - camera.offset, (self.forward * 25 + self.pos) - camera.offset)
-			pg.draw.line(camera.screen, (0,0,255),self.pos - camera.offset, (self.right * 25 + self.pos) - camera.offset)
-			pg.draw.line(camera.screen, (0,255,0),self.pos - camera.offset, (int(target[0]), int(target[1])))
-			pg.draw.circle(camera.screen, (255,0,0),(int(target[0]), int(target[1])),5)
-			pg.draw.circle(camera.screen, (255,0,0),(int(self.pos[0] - camera.offset[0]), int(self.pos[1] - camera.offset[1])),5)
+			debug(camera)
 
 	def __find_velocity(self, target, offset):
 		offset_pos = self.pos - offset
@@ -114,3 +109,10 @@ class Car(pg.sprite.Sprite):
 				velocity *= -.5
 
 		return velocity
+
+	def debug(camera):
+		pg.draw.line(camera.screen, (255,0,0),self.pos - camera.offset, (self.forward * 25 + self.pos) - camera.offset)
+		pg.draw.line(camera.screen, (0,0,255),self.pos - camera.offset, (self.right * 25 + self.pos) - camera.offset)
+		pg.draw.line(camera.screen, (0,255,0),self.pos - camera.offset, (int(target[0]), int(target[1])))
+		pg.draw.circle(camera.screen, (255,0,0),(int(target[0]), int(target[1])),5)
+		pg.draw.circle(camera.screen, (255,0,0),(int(self.pos[0] - camera.offset[0]), int(self.pos[1] - camera.offset[1])),5)
