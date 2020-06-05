@@ -3,8 +3,8 @@ This project attempts to use ML to generate a path for a vehicle to navigate
  obstacles.
 
 ---
-In the world of autonomous vehicles, obstacle navigation if one of the most
-challenging aspect. After the obstacle is detected in relation to the vehicle,
+In the world of autonomous vehicles, obstacle navigation is one of the most
+challenging aspects. After the obstacle is detected in relation to the vehicle,
 a path needs to be generated in order to navigate that situation. Most systems
 rely on pre-generated paths that are fitted around the obstacle(s) it is facing,
 using a very algorithmic approach, and this can work very well in ideal scenarios.
