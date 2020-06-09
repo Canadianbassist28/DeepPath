@@ -6,7 +6,7 @@ from camera import Camera
 
 pygame.init()
 
-camera = Camera(1000, 500)
+camera = Camera(1000, 525)
 
 car = Car(camera, (250,250))
 
@@ -30,8 +30,6 @@ while running:
 
 
 	camera.update(pygame.mouse.get_pos(), events)
-	# car.update(pygame.mouse.get_pos(), screen, walls)
-	# walls.update(screen)
 
 	pygame.display.flip()
 	Clock.tick(60)
