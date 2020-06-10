@@ -26,8 +26,10 @@ class Camera(object):
 	def scroll(self, offset):
 		offset = Vector2(offset)
 
-		if self.player.pos[0] + (self.view_width / 2) <= self.width and self.player.pos[0] - (self.view_width / 2) >= 0 and \
-		   self.player.pos[1] + (self.view_height / 2) > self.height or self.player.pos[1] - (self.view_height / 2) < 0:
-			self.offset += Vector2(offset[0], 0)
-		else:
-			self.offset += offset
+		self.offset += offset
+
+		if self.player.pos[1] + (self.view_height / 2) > self.height or self.player.pos[1] - (self.view_height / 2) < 0:
+			self.offset -= Vector2(0, offset[1])
+
+		if self.player.pos[1] + (self.view_width / 2) > self.width or self.player.pos[1] - (self.view_width / 2) < 0:
+			self.offset -= Vector2(offset[0], 0)
